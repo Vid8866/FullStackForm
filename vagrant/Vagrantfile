@@ -1,0 +1,18 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/jammy64-arm64"
+
+  # Nastavitve za VirtualBox
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 2048
+    vb.cpus = 2
+  end
+
+  # Port forwarding → Nginx bo serviral na http://localhost:8080
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # Sync projekt v VM
+  config.vm.synced_folder "../application", "/app"
+
+  # Provisioning skripta
+  config.vm.provision "shell", path: "provision.sh"
+end
