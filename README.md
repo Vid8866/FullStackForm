@@ -5,7 +5,7 @@ Ta repozitorij vsebuje preprosto full-stack spletno aplikacijo, zgrajeno z nasle
 
 - Flask (Python spletni okvir)
 - PostgreSQL (SQL baza podatkov)
-- Redis (predpomnilnik v pomnilniku)
+- Redis (hitra podatkovna baza v RAM-u = cache)
 - Bootstrap (stiliranje uporabniškega vmesnika)
 - Nginx (ni namenjen za lokalni razvoj — uporablja se v Vagrant ali cloud-init VM-ju kot HTTP strežnik.)
 
