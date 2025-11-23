@@ -1,4 +1,3 @@
-
 # Aplikacija Full Stack Form (Flask + PostgreSQL + Redis)
 
 Ta repozitorij vsebuje preprosto full-stack spletno aplikacijo, zgrajeno z naslednjimi tehnologijami:
@@ -10,7 +9,6 @@ Ta repozitorij vsebuje preprosto full-stack spletno aplikacijo, zgrajeno z nasle
 - Nginx (ni namenjen za lokalni razvoj — uporablja se v Vagrant ali cloud-init VM-ju kot HTTP strežnik.)
 
 ---
-
 
 # Kako zagnati projekt lokalno
 
@@ -59,27 +57,52 @@ brew services start redis
 python main.py
 ```
 
-
 # Lokalna uporaba aplikacije z cloud-init preko multipass
+
 ## 1. Naložite [multipass](https://documentation.ubuntu.com/multipass/latest/how-to-guides/install-multipass/)
+
 ## 2. Zaženite vm z cloud-init
+
 Uporabite multipass, da naredite nov vm.
+
 ```
 multipass launch --memory=2G --disk=5G --cpus=1 --name testvm --bridged --cloud-init cloud-config.yaml
 ```
+
 To lahko traja nekaj minut. Možen je tudi "Timeout waiting for instance launch" ampak bi aplikacija vseeno morala delovati.
 Kasneje boste potrebovali IPv4 naslov od testvm, pokažete ga lahko s tem ukazom:
+
 ```
 multipass list
 ```
+
 ## 3. Odprite lupino in zaženite aplikacijo
+
 Odprite lupino od testvm
+
 ```
 multipass shell testvm
 ```
+
 Ko ste v lupini, lahko aplikacijo Full Stack Form odprete z ukazom:
+
 ```
 python3 /home/ubuntu/FullStackForm/application/app/main.py
 ```
+
 ## 4. Uporaba aplikacije
+
 V brskalniku se povežite na IP, ki ste si ga prej zapomnili, na port 5001 (na primer 10.209.93.241:5001)
+
+# Kako zagnati projekt z Vagrantom
+
+## 1. Naložite [Vagrant](https://developer.hashicorp.com/vagrant/install) in [virtualBox](https://www.virtualbox.org/wiki/Downloads)
+
+## 2. Postavite se v mapo vagrant in zaženite
+
+```
+cd FullStackForm/vagrant
+vagrant up
+```
+
+V konzoli se vam bo pokazala povezava do aplikacije.
