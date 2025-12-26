@@ -37,9 +37,15 @@ sudo systemctl enable redis-server
 sudo systemctl start redis-server
 
 echo "==============================="
-echo " Running the application..."
+echo " Creating systemd service for Flask..."
 echo "==============================="
-python3 main.py
+
+sudo cp /home/vagrant/FullStackForm/vagrant/flaskapp.service \
+        /etc/systemd/system/flaskapp.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable flaskapp
+sudo systemctl start flaskapp
 
 echo "==============================="
 echo " ALL DONE!"
