@@ -35,8 +35,10 @@ services:
     container_name: fullstackform-nginx
     ports:
       - "8080:80"
+      - "8443:443"
     volumes:
-      - ./application/nginx:/etc/nginx/conf.d:ro
+      - ./application/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./application/nginx/certs:/etc/nginx/certs:ro
     depends_on:
       - app
 
