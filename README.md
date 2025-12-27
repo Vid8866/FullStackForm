@@ -1,108 +1,107 @@
-# Aplikacija Full Stack Form (Flask + PostgreSQL + Redis)
+# Full Stack Form – Dockerizirana Aplikacija
 
-Ta repozitorij vsebuje preprosto full-stack spletno aplikacijo, zgrajeno z naslednjimi tehnologijami:
-
-- Flask (Python spletni okvir)
-- PostgreSQL (SQL baza podatkov)
-- Redis (hitra podatkovna baza v RAM-u = cache)
-- Bootstrap (stiliranje uporabniškega vmesnika)
-- Nginx (ni namenjen za lokalni razvoj — uporablja se v Vagrant ali cloud-init VM-ju kot HTTP strežnik.)
+Ta repozitorij vsebuje **full-stack spletno aplikacijo**, ki je v celoti **dockerizirana** in zagnana z **Docker Compose**.
 
 ---
 
-# Kako zagnati projekt lokalno
+## Arhitektura aplikacije
 
-Sledite tem korakom **v navedenem vrstnem redu**.
+Aplikacijski stack je sestavljen iz **štirih ločenih storitev**, vsaka v svojem Docker kontejnerju:
+
+- **Flask (Python)** – backend spletna aplikacija
+- **PostgreSQL** – relacijska baza podatkov
+- **Redis** – cache in števec vnosov
+- **Nginx** – reverse proxy + TLS terminacija (HTTPS)
+
+Vse storitve tečejo v **Docker Compose okolju** in komunicirajo preko Docker omrežja.
 
 ---
 
-## 1. Kloniraj repozitorij
+## Tehnologije
+
+- Python (Flask)
+- PostgreSQL 16
+- Redis 7
+- Nginx (Alpine)
+- Docker & Docker Compose
+- Docker BuildX
+- GitHub Actions (CI)
+- Docker Hub (registry)
+- OpenSSL (self-signed TLS certifikat)
+
+---
+
+## Docker image
+
+Flask aplikacija je zgrajena kot **custom Docker image**:
+
+- uporabljen je **multi-stage Dockerfile**
+- build stage vsebuje build odvisnosti (compilerji, headers)
+- runtime stage uporablja **minimalni `python:3.12-slim`**
+- rezultat je manjši in varnejši image
+- image se avtomatsko gradi in objavlja s CI/CD
+
+Docker Hub image: vid8866/fullstackform-app:latest
+
+---
+
+## CI/CD – GitHub Actions
+
+Projekt uporablja **GitHub Actions** za avtomatsko gradnjo in objavo Docker image-a.
+
+Ob vsakem `push` na branch **docker** se sproži workflow, ki:
+
+1. zgradi Docker image (multi-stage build)
+2. uporabi Docker BuildX
+3. image označi z `latest`
+4. image objavi na Docker Hub
+
+Workflow se nahaja v: .github/workflows/docker.yml
+
+---
+
+## HTTPS / TLS
+
+- HTTPS je omogočen z **Nginx reverse proxy-jem**
+- uporabljeni so **self-signed TLS certifikati**
+- TLS terminacija poteka v Nginx kontejnerju
+- Flask aplikacija teče interno prek HTTP (port 5001)
+
+Ker gre za self-signed certifikat, bo brskalnik prikazal varnostno opozorilo.
+
+---
+
+## Zagon aplikacije (Docker Compose)
+
+### Zahteve
+
+- Docker
+- Docker Compose (v2)
+
+---
+
+### 1. Kloniranje repozitorija
 
 ```bash
 git clone https://github.com/Vid8866/FullStackForm.git
+cd FullStackForm
+git checkout docker
 ```
 
-## 2. Namestite Python odvisnosti
+### 2. Zagon celotnega stacka
 
-```
-pip install -r requirements.txt
-```
-
-## 3. Namestite in zaženite PostgreSQL
-
-macOS (Homebrew):
-
-```
-brew install postgresql
-brew services start postgresql
+```bash
+docker compose up -d
 ```
 
-Ustvarite zahtevano bazo podatkov:
+### 3. Preverjanje stanja
 
-```
-createdb demo
-psql -d demo -c "CREATE USER \"user\" WITH PASSWORD 'pass';"
-psql -d demo -c "GRANT ALL PRIVILEGES ON DATABASE demo TO \"user\";"
+```bash
+docker ps
 ```
 
-## 4. Zaženite Redis
+### 4. Dostop do aplikacije
 
+```bash
+https://<PUBLIC_IP_VM> (HTTPS, port 443)
 ```
-brew services start redis
-```
-
-## 5. Zaženite aplikacijo
-
-```
-python main.py
-```
-
-# Lokalna uporaba aplikacije z cloud-init preko multipass
-
-## 1. Naložite [multipass](https://documentation.ubuntu.com/multipass/latest/how-to-guides/install-multipass/)
-
-## 2. Zaženite vm z cloud-init
-
-Uporabite multipass, da naredite nov vm.
-
-```
-multipass launch --memory=2G --disk=5G --cpus=1 --name testvm --bridged --cloud-init cloud-config.yaml
-```
-
-To lahko traja nekaj minut. Možen je tudi "Timeout waiting for instance launch" ampak bi aplikacija vseeno morala delovati.
-Kasneje boste potrebovali IPv4 naslov od testvm, pokažete ga lahko s tem ukazom:
-
-```
-multipass list
-```
-
-## 3. Odprite lupino in zaženite aplikacijo
-
-Odprite lupino od testvm
-
-```
-multipass shell testvm
-```
-
-Ko ste v lupini, lahko aplikacijo Full Stack Form odprete z ukazom:
-
-```
-python3 /home/ubuntu/FullStackForm/application/app/main.py
-```
-
-## 4. Uporaba aplikacije
-
-V brskalniku se povežite na IP, ki ste si ga prej zapomnili, na port 5001 (na primer 10.209.93.241:5001)
-
-# Kako zagnati projekt z Vagrantom
-
-## 1. Naložite [Vagrant](https://developer.hashicorp.com/vagrant/install) in [virtualBox](https://www.virtualbox.org/wiki/Downloads)
-
-## 2. Postavite se v mapo vagrant in zaženite
-
-```
-cd FullStackForm/vagrant
-vagrant up
-```
-
-V konzoli se vam bo pokazala povezava do aplikacije.
