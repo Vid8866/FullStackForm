@@ -5,24 +5,20 @@ import redis
 
 app = Flask(__name__)
 
-DB_HOST = os.getenv("DATABASE_HOST", "localhost")
-DB_NAME = os.getenv("DATABASE_NAME", "demo")
-DB_USER = os.getenv("DATABASE_USER", "user")
-DB_PASSWORD = os.getenv("DATABASE_PASSWORD", "pass")
-
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
-
 def get_db_conn():
     return psycopg2.connect(
-        host=DB_HOST,
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD,
+        host=os.getenv("DATABASE_HOST", "localhost"),
+        dbname=os.getenv("DATABASE_NAME", "demo"),
+        user=os.getenv("DATABASE_USER", "user"),
+        password=os.getenv("DATABASE_PASSWORD", "pass"),
     )
 
 def get_redis():
-    return redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+    return redis.Redis(
+        host=os.getenv("REDIS_HOST", "localhost"),
+        port=int(os.getenv("REDIS_PORT", 6379)),
+        decode_responses=True,
+    )
 
 def init_db():
     conn = get_db_conn()

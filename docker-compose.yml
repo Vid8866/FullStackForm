@@ -1,22 +1,18 @@
-version: "3.9"
-
 services:
   app:
-    build: 
-      context: ../application/app
-      dockerfile: ../../docker/app/Dockerfile
+    build:
+      context: ./application/app
     container_name: fullstackform-app
     environment:
-      DB_HOST: db
-      DB_NAME: demo
-      DB_USER: user
-      DB_PASSWORD: pass
+      DATABASE_HOST: db
+      DATABASE_NAME: demo
+      DATABASE_USER: user
+      DATABASE_PASSWORD: pass
       REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       - db
       - redis
-    expose:
-      - "5001"
 
   db:
     image: postgres:16
@@ -26,11 +22,13 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
 
   redis:
     image: redis:7
     container_name: fullstackform-redis
+    volumes:
+      - redisdata:/data
 
   nginx:
     image: nginx:alpine
@@ -38,9 +36,10 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./application/nginx:/etc/nginx/conf.d:ro
     depends_on:
       - app
 
 volumes:
-  postgres_data:
+  pgdata:
+  redisdata:
